@@ -1,4 +1,4 @@
-from imports import *
+from .imports import *
 
 @api_view(['POST'])
 def register(request):
@@ -29,6 +29,11 @@ def login_view(request):
 
     if user is not None:
         profile = Profile.objects.get(user=user)
+
+        if AuthToken.objects.filter(user=profile).exists():
+            token = AuthToken.objects.get(user=profile)
+            token.delete()
+
         token_str = ''.join(random.choices(string.ascii_letters + string.digits, k=128))
 
         token = AuthToken.objects.create(

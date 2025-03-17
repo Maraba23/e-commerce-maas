@@ -58,16 +58,13 @@ const HackerToast = ({ message, type, onClose }) => {
   );
 };
 
-export default function Register() {
+export default function Login() {
   const [formData, setFormData] = useState({
     username: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
+    password: ""
   });
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [terminalText, setTerminalText] = useState("");
   const [toast, setToast] = useState(null);
   const navigate = useNavigate();
@@ -75,10 +72,10 @@ export default function Register() {
   // Efeito de digitação para o terminal
   useEffect(() => {
     const messages = [
-      "Inicializando sistema de registro...",
-      "Verificando conexão segura...",
-      "Criptografia ativada...",
-      "Sistema pronto para novos usuários...",
+      "Inicializando protocolo de autenticação...",
+      "Estabelecendo conexão segura...",
+      "Criptografia de dados ativada...",
+      "Aguardando credenciais...",
     ];
     
     let currentMessageIndex = 0;
@@ -109,41 +106,35 @@ export default function Register() {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError(""); // Limpa erros ao digitar
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Verifica se as senhas coincidem
-    if (formData.password !== formData.confirmPassword) {
-      setError("As senhas não coincidem.");
-      return;
-    }
-
     setLoading(true);
 
     try {
-      await axiosInstance.post("register/", {
+      const response = await axiosInstance.post("login/", {
         username: formData.username,
-        email: formData.email,
-        password: formData.password,
+        password: formData.password
       });
 
+      // Guarda o token no localStorage
+      localStorage.setItem("authToken", response.data.token);
+      
       setToast({
         type: 'success',
-        message: '[SUCCESS] Registro bem-sucedido! Redirecionando para o login...'
+        message: '[ACCESS_GRANTED] Login bem-sucedido! Redirecionando...'
       });
       
-      // Aguarda um momento antes de redirecionar
+      // Pequeno delay antes de redirecionar (ajuste conforme necessário)
       setTimeout(() => {
-        navigate("/login");
+        navigate("/products"); // Ajuste conforme sua rota pós-login
       }, 2000);
       
     } catch (error) {
       setToast({
         type: 'error',
-        message: `[ERROR] ${error.response?.data?.message || "Falha na autenticação. Verifique os dados fornecidos."}`
+        message: `[ACCESS_DENIED] ${error.response?.data?.message || "Credenciais inválidas. Acesso negado."}`
       });
     } finally {
       setLoading(false);
@@ -188,15 +179,28 @@ export default function Register() {
           <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" style={{ animationDelay: "1s" }}></div>
         </div>
         
-        <div className="absolute top-3 left-3 text-xs text-green-400 font-mono opacity-70">SEC::ACCESS_v2.1</div>
+        <div className="absolute top-3 left-3 text-xs text-green-400 font-mono opacity-70">SEC::AUTH_v3.0</div>
         
         <Typography 
           variant="h4" 
           className="text-green-400 text-center mb-2 font-mono glitch-text"
           sx={{ letterSpacing: "2px", fontWeight: "bold" }}
         >
-          CRIAR ACESSO
+          AUTENTICAÇÃO
         </Typography>
+        
+        <div className="mb-6 flex justify-center">
+          <div className="w-20 h-20 border-2 border-green-500 rounded-full flex items-center justify-center">
+            <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center overflow-hidden">
+              <div className="lock-icon text-green-400">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
         
         <div className="w-full h-16 bg-black border border-green-500 rounded-md mb-4 p-2 overflow-hidden">
           <pre className="text-green-400 text-xs font-mono h-full overflow-hidden">
@@ -204,7 +208,7 @@ export default function Register() {
           </pre>
         </div>
         
-        <form onSubmit={handleSubmit} className="space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <TextField
             fullWidth
             label="Identificação de Usuário"
@@ -218,66 +222,29 @@ export default function Register() {
             }}
             sx={inputStyle}
           />
+          
           <TextField
             fullWidth
-            label="Endereço E-mail"
-            name="email"
-            type="email"
+            label="Senha de Acesso"
+            name="password"
+            type="password"
             variant="outlined"
             required
             onChange={handleChange}
             InputProps={{ 
               style: { color: "#00FF00", fontFamily: "monospace" },
-              startAdornment: <span className="text-green-400 mr-2">@</span>
+              startAdornment: <span className="text-green-400 mr-2">*</span>
             }}
             sx={inputStyle}
           />
-          <div className="grid grid-cols-2 gap-4">
-            <TextField
-              fullWidth
-              label="Senha"
-              name="password"
-              type="password"
-              variant="outlined"
-              required
-              onChange={handleChange}
-              InputProps={{ 
-                style: { color: "#00FF00", fontFamily: "monospace" },
-                startAdornment: <span className="text-green-400 mr-2">*</span>
-              }}
-              sx={inputStyle}
-            />
-            <TextField
-              fullWidth
-              label="Confirmar Senha"
-              name="confirmPassword"
-              type="password"
-              variant="outlined"
-              required
-              onChange={handleChange}
-              InputProps={{ 
-                style: { color: "#00FF00", fontFamily: "monospace" },
-                startAdornment: <span className="text-green-400 mr-2">*</span>
-              }}
-              sx={inputStyle}
-            />
-          </div>
-
-          {error && (
-            <div className="bg-red-900 bg-opacity-30 border border-red-500 rounded p-2 mt-2">
-              <Typography className="text-red-400 text-sm font-mono flex items-center">
-                <span className="mr-2">!</span> {error}
-              </Typography>
-            </div>
-          )}
 
           <Button
             type="submit"
             fullWidth
             variant="contained"
-            className="pulse-button"
+            className="h-12 pulse-button"
             sx={{
-              mt: 2,
+              mt: 3,
               backgroundColor: "#121212",
               color: "#00FF00",
               border: "1px solid #00FF00",
@@ -293,21 +260,33 @@ export default function Register() {
             }}
             disabled={loading}
           >
-            {loading ? <CircularProgress size={24} sx={{ color: "#00FF00" }} /> : "INICIAR ACESSO"}
+            {loading ? (
+              <CircularProgress size={24} sx={{ color: "#00FF00" }} />
+            ) : (
+              <>ACESSAR SISTEMA</>
+            )}
           </Button>
         </form>
         
         <div className="mt-6 border-t border-green-900 pt-4 flex justify-center">
           <Typography variant="body2" className="text-green-400 text-center font-mono">
-            Acesso já autorizado?{" "}
+            Não possui uma conta?{" "}
             <span 
               className="cursor-pointer hover:text-green-300 underline underline-offset-4" 
-              onClick={() => navigate("/login")}
+              onClick={() => navigate("/register")}
             >
-              Entrar no sistema
+              Registrar-se
             </span>
           </Typography>
         </div>
+        
+        {/* Mensagem de segurança */}
+        <div className="mt-4 text-xs text-green-400 opacity-60 font-mono text-center">
+          [ ATENÇÃO: Acesso monitorado. Tentativas não autorizadas serão rastreadas. ]
+        </div>
+        
+        {/* Efeito de escaneamento biométrico */}
+        <div className="absolute bottom-5 left-5 right-5 h-1 bg-green-500 opacity-50 scan-horizontal"></div>
         
         {/* Decoração de canto */}
         <div className="absolute bottom-0 left-0 w-8 h-8 border-l border-b border-green-500"></div>
@@ -347,7 +326,7 @@ const inputStyle = {
   marginBottom: "16px"
 };
 
-// Adicione estes estilos ao seu CSS global
+// Adicione estes estilos ao seu CSS global (se você não tiver feito isso para o Register)
 /*
 
 */
