@@ -1,7 +1,6 @@
 from django.urls import path
 from .views import *
 from .views_dash import *
-from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
     path('register/', register, name='register'),

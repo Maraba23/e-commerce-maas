@@ -56,6 +56,8 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "http://52.202.96.198",
+    "https://abcplace.net.br"
 ]
 
 ROOT_URLCONF = 'backend.urls'
