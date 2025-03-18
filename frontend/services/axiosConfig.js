@@ -3,7 +3,7 @@ import axios from 'axios';
 const DEBUG = true;
 
 const axiosInstance = axios.create({
-  baseURL: DEBUG ? 'http://localhost:8000/api/v1/' : '<API_URL>',
+  baseURL: DEBUG ? 'http://localhost:8000/api/v1/' : 'http://10.0.129.164/api/v1/',
   headers: {
     'Content-Type': 'application/json',
   },
