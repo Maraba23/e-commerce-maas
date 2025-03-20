@@ -3,11 +3,12 @@ import axios from 'axios';
 const DEBUG = false;
 
 const axiosInstance = axios.create({
-  baseURL: DEBUG ? 'http://localhost:8000/api/v1/' : '/api/v1/',
+  baseURL: DEBUG ? 'http://localhost:8000/api/v1/' : 'https://abcplace.net.br/api/v1/',
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
 
 axiosInstance.interceptors.response.use(
   (response) => response,
